@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+<input name="uploadFiles" type="file" multiple>
+<button class="uploadBtn">Upload</button>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"
+        integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g="
+        crossorigin="anonymous"></script>
+
+<script>
+  $('.uploadBtn').on('click', function () {
+    var formData = new FormData();
+    var inputFile = $('input[type="file"]');
+    var files = inputFile[0].files;
+
+    for (var i = 0; i < files.length; i++) {
+      console.log(files[i]);
+      formData.append('uploadFiles', files[i]);
+    }
+
+    /*
+     파일 업로드를 위해서 contentType 속성을 반드시 false 로 지정하는데 파일 업로드는
+     'multipart/form-data' 타입을 사용하기 위한 용도
+     */
+    //실제 업로드 부분
+    $.ajax({
+      url        : '/uploadAjax',         // 클라이언트가 HTTP 요청을 보낼 서버의 URL 주소
+      processData: false,                 // 쿼리문자열로 변환되는 것을 방지 (default true)
+      contentType: false,                 // 보내는 데이터의 타입
+      data       : formData,              // HTTP 요청과 함께 서버로 보낼 데이터
+      type       : 'post',                // HTTP 요청 방식(GET, POST)
+      dataType   : 'json',                // 서버에서 보내줄 데이터의 타입
+    }).done(function (result) {
+      console.log(result);
+    }).fail(function (jqXHR, textStatus, errorThrown) {
+      console.log(textStatus);
+    }); //end $.ajax
+  });
+</script>
+</body>
+</html>
