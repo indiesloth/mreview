@@ -7,6 +7,11 @@
 <body>
 <input name="uploadFiles" type="file" multiple>
 <button class="uploadBtn">Upload</button>
+
+<div class="uploadResult">
+
+</div>
+
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"
         integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g="
         crossorigin="anonymous"></script>
@@ -18,7 +23,6 @@
     var files = inputFile[0].files;
 
     for (var i = 0; i < files.length; i++) {
-      console.log(files[i]);
       formData.append('uploadFiles', files[i]);
     }
 
@@ -35,10 +39,41 @@
       type       : 'post',                // HTTP 요청 방식(GET, POST)
       dataType   : 'json',                // 서버에서 보내줄 데이터의 타입
     }).done(function (result) {
-      console.log(result);
+      showUploadedImages(result);
     }).fail(function (jqXHR, textStatus, errorThrown) {
       console.log(textStatus);
     }); //end $.ajax
+
+    function showUploadedImages(arr) {
+      console.log(arr);
+
+      var divArea = $('.uploadResult');
+
+      for (var i = 0; i < arr.length; i++) {
+        // 백틱 사용
+        divArea.append(`
+          <div>
+            <img src="/display?fileName=${arr[i].thumbnailURL}">
+            <button class="removeBtn" data-name="${arr[i].imageURL}">REMOVE</button>
+          </div>
+        `);
+      }
+    } //end showUploadedImages
+
+    $('.uploadResult').on('click', '.removeBtn', function () {
+      var target = $(this);
+      var fileName = target.data('name');
+      var targetDiv = $(this).closest('div');
+
+      console.log(fileName);
+
+      $.post('/removeFile', {fileName: fileName}, function (result) {
+        console.log(result);
+        if (result === true) {
+          targetDiv.remove();
+        }
+      });
+    });
   });
 </script>
 </body>

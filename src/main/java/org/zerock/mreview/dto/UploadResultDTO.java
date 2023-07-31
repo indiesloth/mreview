@@ -22,7 +22,13 @@ public class UploadResultDTO implements Serializable {
       }
       책에서는 상단의 내용으로 적혀있지만 Exception이 발생하지 않는다고 나오므로 바로 리턴
      */
-    return URLEncoder.encode(folderPath + File.separator + fileName, StandardCharsets.UTF_8);
+    return URLEncoder.encode(folderPath + File.separator + uuid + "_" + fileName,
+        StandardCharsets.UTF_8);
+  }
+
+  public String getThumbnailURL() {
+    return URLEncoder.encode(folderPath + File.separator + "s_" + uuid + "_" + fileName,
+        StandardCharsets.UTF_8);
   }
 
 }

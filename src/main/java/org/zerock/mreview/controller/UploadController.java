@@ -1,13 +1,17 @@
 package org.zerock.mreview.controller;
 
 import java.io.*;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import lombok.extern.log4j.Log4j2;
+import net.coobird.thumbnailator.Thumbnailator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.zerock.mreview.dto.UploadResultDTO;
@@ -60,7 +64,20 @@ public class UploadController {
       Path savePath = Paths.get(saveName);
 
       try {
+        //원본 파일 저장
         uploadFile.transferTo(savePath);
+
+        //썸네일 생성
+        String thumbnailSaveName =
+            uploadPath + File.separator + folderPath + File.separator + "s_" + uuid + "_"
+                + fileName;
+
+        //썸네일 파일 이름은 중간에 s_로 시작하도록
+        File thumbnailFile = new File(thumbnailSaveName);
+
+        //썸네일 생성
+        Thumbnailator.createThumbnail(savePath.toFile(), thumbnailFile, 100, 100);
+
         resultDTOList.add(new UploadResultDTO(fileName, uuid, folderPath));
       } catch (IOException e) {
         e.printStackTrace();
@@ -91,4 +108,54 @@ public class UploadController {
     }
     return folderPath;
   }
+
+  @GetMapping("/display")
+  public ResponseEntity<byte[]> getFile(String fileName) {
+
+    ResponseEntity<byte[]> result = null;
+
+    try {
+      String srcFileName = URLDecoder.decode(fileName, StandardCharsets.UTF_8);
+
+      log.info("fileName : " + srcFileName);
+
+      File file = new File(uploadPath + File.separator + srcFileName);
+
+      log.info("file : " + file);
+
+      HttpHeaders header = new HttpHeaders();
+
+      //MIME타입 처리 (파일의 확장자에 따라서 브라우저에 전송하는 MIME 타입이 달라져야 하는 문제)
+      header.add("Content-Type", Files.probeContentType(file.toPath()));
+
+      //파일 데이터 처리
+      result = new ResponseEntity<>(FileCopyUtils.copyToByteArray(file), header, HttpStatus.OK);
+
+    } catch (Exception e) {
+      log.error(e.getMessage());
+      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    return result;
+  }
+
+  @PostMapping("/removeFile")
+  public ResponseEntity<Boolean> removeFile(String fileName) {
+
+    String srcFileName = null;
+    try {
+      //원본 파일 삭제
+      srcFileName = URLDecoder.decode(fileName, StandardCharsets.UTF_8);
+      File file = new File(uploadPath + File.separator + srcFileName);
+      boolean result = file.delete();
+
+      //썸네일 파일 삭제
+      File thumbnail = new File(file.getParent(), "s_" + file.getName());
+      result = thumbnail.delete();
+      return new ResponseEntity<>(result, HttpStatus.OK);
+    }catch (Exception e) {
+      e.printStackTrace();
+      return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
 }
