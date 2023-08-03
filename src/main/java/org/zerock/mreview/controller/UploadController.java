@@ -44,6 +44,7 @@ public class UploadController {
 
       //실제 파일 이름 IE나 Edge 는 전체 경로가 들어오므로
       String originalName = uploadFile.getOriginalFilename();
+      log.info("originalName : " + originalName);
 
       //String fileName = originalName.substring(originalName.lastIndexOf("\\") + 1);
       String fileName = Objects.requireNonNull(originalName)
