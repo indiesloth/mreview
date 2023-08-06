@@ -3,29 +3,6 @@
 <th:block th:replace="~{layout/basic :: setContent(~{this::content})}">
   <th:block th:fragment="content">
 
-    <h1 class="mt-4">Movie Register Page</h1>
-
-    <form th:action="@{/movie/register}" th:method="post">
-      <div class="form-group">
-        <label>Title</label>
-        <input type="text" class="form-control" name="title" placeholder="Enter Title">
-      </div>
-
-      <div class="form-group fileForm">
-        <label>Image Files</label>
-        <div class="custom-file">
-          <input type="file" class="custom-file-input files" id="fileInput" multiple>
-          <label class="custom-file-label" data-browse="Browse"></label>
-        </div>
-      </div>
-
-      <div class="box">
-
-      </div>
-
-      <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
-
     <style>
       .uploadResult {
         width: 100%;
@@ -52,6 +29,29 @@
         width: 100px;
       }
     </style>
+
+    <h1 class="mt-4">Movie Register Page</h1>
+
+    <form th:action="@{/movie/register}" th:method="post">
+      <div class="form-group">
+        <label>Title</label>
+        <input type="text" class="form-control" name="title" placeholder="Enter Title">
+      </div>
+
+      <div class="form-group fileForm">
+        <label>Image Files</label>
+        <div class="custom-file">
+          <input type="file" class="custom-file-input files" id="fileInput" multiple>
+          <label class="custom-file-label" data-browse="Browse"></label>
+        </div>
+      </div>
+
+      <div class="box">
+
+      </div>
+
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
 
     <div class="uploadResult">
       <ul>
@@ -119,7 +119,6 @@
 
         function showResult(uploadResultArr) {
           var uploadUL = $('.uploadResult ul');
-          var str = '';
 
           $(uploadResultArr).each(function (i, obj) {
             uploadUL.append(`
@@ -153,7 +152,7 @@
         //prevent submit
         $('.btn-primary').on('click', function (e) {
           e.preventDefault();
-          var str = "";
+          var str = '';
           $('.uploadResult li').each(function (i, obj) {
             var target = $(obj);
             str += `
@@ -165,6 +164,7 @@
           $('.box').html(str);
           $('form').submit();
         });//end btn-primary
+
       });//end document
     </script>
   </th:block>
