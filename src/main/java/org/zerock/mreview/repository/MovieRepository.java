@@ -7,9 +7,9 @@ import org.zerock.mreview.entity.Movie;
 
 public interface MovieRepository extends AbstractRepository<Movie, Long> {
 
-  @Query("select m, mi, avg(coalesce(r.grade, 0)), count(distinct r) from Movie m "
-      + " left join MovieImage mi on mi.movie = m "
-      + " left join Review r on r.movie = m group by m")
+  @Query("select m, mi, avg(coalesce(r.grade, 0)), count(distinct r.reviewnum) from Movie m "
+      + " left outer join MovieImage mi on mi.movie = m "
+      + " left outer join Review r on r.movie = m group by m ")
   Page<Object[]> getListPage(Pageable pageable);  //페이지 처리
 
   @Query("select m, mi from Movie m "
